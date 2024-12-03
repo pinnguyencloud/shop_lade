@@ -1,9 +1,7 @@
 const MyInput = ({
-  // Dùng cho form động
   field,
   value,
   onChange,
-  // Dùng cho form cứng
   label,
   type = "text",
   name,
@@ -95,9 +93,7 @@ const MyInput = ({
 
   return (
     <div
-      className={`relative w-full mb-4 ${
-        inputType === "checkbox" || inputType === "radio" ? "" : "peer"
-      }`}
+      className={`relative w-full mb-4 ${inputType === "checkbox" || inputType === "radio" ? "" : "peer"}`}
     >
       {renderInput()}
       {inputType !== "checkbox" &&
@@ -105,7 +101,7 @@ const MyInput = ({
         inputType !== "select" && (
           <label
             htmlFor={inputId}
-            className="absolute left-3 top-2 text-gray-800 text-sm transform -translate-y-2 scale-90 transition-all duration-200
+            className="absolute left-3 top-1 text-gray-800 text-sm transform -translate-y-2 scale-90 transition-all duration-200
             peer-placeholder-shown:translate-y-4 peer-placeholder-shown:scale-100 peer-placeholder-shown:text-gray-400 peer-focus:-translate-y-1
             peer-focus:scale-90 peer-focus:text-primary"
           >

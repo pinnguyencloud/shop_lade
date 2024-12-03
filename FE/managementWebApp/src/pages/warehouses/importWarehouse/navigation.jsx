@@ -1,17 +1,30 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-function Navigation() {
+function NavigationImport() {
   const navigate = useNavigate();
   const moduleItems = [
     {
-      id: "importWarehouse",
-      label: "Nhập kho",
-      path: "import-warehouse",
-      color: "#3B82F6",
+      id: "createReceipt",
+      label: "Tạo phiếu nhập kho",
+      path: "search-product",
+      color: "#D1F7C4",
+      textColor: "#065F46",
     },
-    { id: "exportWarehouse", label: "Xuất kho", path: "", color: "#EF4444" },
-    { id: "inventory", label: "QL Tồn kho", path: "", color: "#10B981" },
+    {
+      id: "history",
+      label: "Lịch sử phiếu nhập",
+      path: "",
+      color: "#E0F2FE",
+      textColor: "#2563EB",
+    },
+    {
+      id: "draft",
+      label: "Bản nháp",
+      path: "",
+      color: "#FEF3C7",
+      textColor: "#92400E",
+    },
   ];
 
   const [hoveredItem, setHoveredItem] = useState(null);
@@ -29,13 +42,17 @@ function Navigation() {
       {moduleItems.map((moduleItem) => (
         <button
           key={moduleItem.id}
-          className="border-2 rounded-xl font-medium p-5 transition-all hover:shadow duration-200 ease-in-out hover:text-primary"
+          className="border-2 rounded-xl font-medium p-5 transition-all duration-200 ease-in-out
+            hover:shadow-lg
+            active:bg-[#D1F7C4] active:text-white active:border-[#065F46] active:scale-95"
           style={{
             backgroundColor:
               hoveredItem === moduleItem.id ? "white" : moduleItem.color,
             borderColor:
-              hoveredItem === moduleItem.id ? moduleItem.color : "white",
-            color: hoveredItem === moduleItem.id ? moduleItem.color : "white",
+              hoveredItem === moduleItem.id
+                ? moduleItem.textColor
+                : moduleItem.color,
+            color: moduleItem.textColor,
           }}
           onMouseEnter={() => handleMouseEnter(moduleItem.id)}
           onMouseLeave={handleMouseLeave}
@@ -48,4 +65,4 @@ function Navigation() {
   );
 }
 
-export default Navigation;
+export default NavigationImport;

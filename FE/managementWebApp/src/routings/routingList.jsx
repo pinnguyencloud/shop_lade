@@ -8,6 +8,9 @@ import ProductDetail from "../pages/products/productDetail";
 import AllProductItems from "../pages/products/allProductItems";
 import Warehouses from "../pages/warehouses";
 import Navigation from "../pages/warehouses/navigation";
+import ImportWarehouse from "../pages/warehouses/importWarehouse";
+import NavigationImport from "../pages/warehouses/importWarehouse/navigation";
+import SearchProduct from "../pages/warehouses/importWarehouse/searchProduct";
 
 const router = createBrowserRouter([
   {
@@ -49,7 +52,17 @@ const router = createBrowserRouter([
       {
         path: "/warehouse",
         element: <Warehouses />,
-        children: [{ path: "", element: <Navigation /> }, {path:"trung", element: "Hello"}],
+        children: [
+          { path: "", element: <Navigation /> },
+          {
+            path: "import-warehouse",
+            element: <ImportWarehouse />,
+            children: [
+              { path: "", element: <NavigationImport /> },
+              { path: "search-product", element: <SearchProduct /> },
+            ],
+          },
+        ],
       },
     ],
   },
