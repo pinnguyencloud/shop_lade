@@ -2,60 +2,47 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MyInput from "../../../components/form/myInput";
 import ProductSearchItem from "../../../components/cards/productSearchItem";
-import demo from "../../../assets/images/demo.jpg";
-
-// Giả sử có một danh sách sản phẩm
-const productList = [
-  { id: "123", productName: "Sản phẩm A", productCode: "SPA", img: demo },
-  { id: "123123", productName: "Sản phẩm D", productCode: "SPD", img: demo },
-  { id: "456", productName: "Sản phẩm B", productCode: "SPB", img: demo },
-  { id: "789", productName: "Sản phẩm C", productCode: "SPC", img: demo },
-];
+import { useProduct } from "../../../contexts";
+import useDebounce from "../../../hooks/useDebounce"; // Import custom hook
 
 function SearchProduct() {
   const navigate = useNavigate();
   const [searchCode, setSearchCode] = useState("");
   const [foundProducts, setFoundProducts] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
+  const { products, setQueryParamsObj } = useProduct();
+
+  // Debounce giá trị searchCode với 500ms
+  const debouncedSearchCode = useDebounce(searchCode, 500);
 
   const handleSearchChange = (e) => {
     setSearchCode(e.target.value);
   };
 
   useEffect(() => {
-    if (!searchCode) {
+    if (!debouncedSearchCode) {
       setErrorMessage("");
       setFoundProducts([]);
       return;
     }
 
-    // Thực hiện debounce với setTimeout
-    const debounceTime = setTimeout(() => {
-      const filteredProducts = productList.filter(
-        (item) =>
-          item.productCode.toLowerCase().includes(searchCode.toLowerCase()) ||
-          item.productName.toLowerCase().includes(searchCode.toLowerCase())
+    // Update query params sau khi debounce
+    setQueryParamsObj((prev) => ({
+      ...prev,
+      productCode: debouncedSearchCode,
+      limit: 0,
+    }));
+
+    if (products.length > 0) {
+      setFoundProducts(products);
+      setErrorMessage("");
+    } else {
+      setFoundProducts([]);
+      setErrorMessage(
+        "Không tìm thấy mã sản phẩm. Vui lòng thêm sản phẩm mới."
       );
-
-      if (filteredProducts.length > 0) {
-        setFoundProducts(filteredProducts);
-        setErrorMessage("");
-      } else {
-        setFoundProducts([]);
-        setErrorMessage(
-          "Không tìm thấy mã sản phẩm. Vui lòng thêm sản phẩm mới."
-        );
-      }
-    }, 500);
-
-    return () => {
-      clearTimeout(debounceTime);
-    };
-  }, [searchCode]);
-
-  const handleProductClick = (product) => {
-    navigate("/create-receipt", { state: { product } });
-  };
+    }
+  }, [debouncedSearchCode, setQueryParamsObj, products]);
 
   return (
     <div className="w-full flex items-center justify-center">
@@ -71,7 +58,7 @@ function SearchProduct() {
 
         {/* Hiển thị các sản phẩm tìm thấy */}
         {foundProducts.length > 0 && (
-          <div className="mt-2">
+          <div className="mt-2 max-h-[450px] overflow-y-auto overflow-x-hidden">
             {foundProducts.map((product) => (
               <ProductSearchItem key={product.id} obj={product} />
             ))}

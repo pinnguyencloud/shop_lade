@@ -2,7 +2,7 @@ import { apiProducts, basicApiProduct } from "../../api/apiProducts";
 
 export const getProducts = async (queryParams) => {
   try {
-    const response = await basicApiProduct.get(`filter?${queryParams}`);
+    const response = await basicApiProduct.get(`filter${queryParams}`);
     return response.data;
   } catch (error) {
     console.error(

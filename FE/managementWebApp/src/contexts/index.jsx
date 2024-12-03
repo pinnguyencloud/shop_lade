@@ -2,11 +2,12 @@ import { createContext, useContext } from "react";
 import { ProductContext, ProductProvider } from "./products/productContext";
 import { CategoriesContext, CategoriesProvider } from "./categoriesContext";
 import { ImportContext, ImportProvider } from "./warehouse/importContext";
-import { SupplierContext, SupplierProvider } from "./accounts/suppliersContext";
 
 const GobalContext = createContext();
 
 export const GobalProvider = ({ children }) => {
+  const BASE_URL = import.meta.env.VITE_API_URL;
+
   function convertDate(dateString) {
     const date = new Date(dateString);
 
@@ -18,13 +19,19 @@ export const GobalProvider = ({ children }) => {
 
     return `${day}/${month}/${year} ${hours}:${minutes}`;
   }
+
+  const buildQueryString = (query) => {
+    const queryParams = Object.entries(query)
+      .filter(([key, value]) => value !== null && value !== undefined)
+      .map(([key, value]) => `${key}=${encodeURIComponent(value)}`);
+    return queryParams.length > 0 ? `?${queryParams.join("&")}` : "";
+  };
+
   return (
-    <GobalContext.Provider value={{ convertDate }}>
+    <GobalContext.Provider value={{ convertDate, buildQueryString, BASE_URL }}>
       <CategoriesProvider>
         <ProductProvider>
-          <ImportProvider>
-            <SupplierProvider>{children}</SupplierProvider>
-          </ImportProvider>
+          <ImportProvider>{children}</ImportProvider>
         </ProductProvider>
       </CategoriesProvider>
     </GobalContext.Provider>
@@ -34,5 +41,4 @@ export const GobalProvider = ({ children }) => {
 export const useProduct = () => useContext(ProductContext);
 export const useCategories = () => useContext(CategoriesContext);
 export const useGobal = () => useContext(GobalContext);
-export const useSupplier = () => useContext(SupplierContext);
 export const useImport = () => useContext(ImportContext);

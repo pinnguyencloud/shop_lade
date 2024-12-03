@@ -1,6 +1,7 @@
 import { createContext } from "react";
 import {
   addnewReceipt,
+  checkLowStock,
   getReceiptById,
   getReceipts,
   updateReceiptStatus,
@@ -12,9 +13,12 @@ import { useGobal } from "..";
 export const ImportContext = createContext();
 
 export const ImportProvider = ({ children }) => {
+  const { buildQueryString } = useGobal();
+
   const [compeleted, setCompleted] = useState({});
   const [receipts, setReceipts] = useState([]);
   const [receiptsDetail, setReceiptsDetail] = useState({});
+  const [checkStock, setCheckStock] = useState([]);
   const [queryParam, setQueryParam] = useState({
     status: 1,
     supplierId: null,
@@ -23,13 +27,6 @@ export const ImportProvider = ({ children }) => {
     page: 1,
     limit: 10,
   });
-
-  const buildQueryString = (query) => {
-    const queryParams = Object.entries(query)
-      .filter(([key, value]) => value !== null && value !== undefined)
-      .map(([key, value]) => `${key}=${encodeURIComponent(value)}`);
-    return queryParams.join("&");
-  };
 
   useEffect(() => {
     const queryString = buildQueryString(queryParam);
@@ -71,6 +68,15 @@ export const ImportProvider = ({ children }) => {
     }
   };
 
+  const checkStockWarehouse = async () => {
+    try {
+      const response = await checkLowStock();
+      setCheckStock(response.data);
+    } catch (error) {
+      console.error("Đã có lỗi xảy ra ở checkStockWarehouse: ", error.message);
+    }
+  };
+
   return (
     <ImportContext.Provider
       value={{
@@ -79,6 +85,10 @@ export const ImportProvider = ({ children }) => {
         fetchReceiptById,
         createReceipt,
         compeleted,
+        checkStockWarehouse,
+        updateStatus,
+        checkStock,
+        receiptsDetail,
       }}
     >
       {children}
