@@ -9,47 +9,47 @@ class ProductController {
         categories,
         tags,
         colors,
-        minPrice,
-        maxPrice,
         search,
+        productCode,
+        sortStock = 'asc',
         page = 1,
         limit = 10,
       } = req.query;
-
+  
       let query = { isActive: true };
-
+  
       if (categories) {
         query.categoryId = { $in: categories.split(",").map(Number) };
       }
-
+  
       if (tags) {
         query.tags = { $in: tags.split(",") };
       }
-
+  
       if (colors) {
         query["attributes.color"] = { $in: colors.split(",") };
       }
-
-      if (minPrice || maxPrice) {
-        query.price = {};
-        if (minPrice) query.price.$gte = parseFloat(minPrice);
-        if (maxPrice) query.price.$lte = parseFloat(maxPrice);
-      }
-
-      // Improve search functionality
+  
       if (search && search.trim()) {
         query.productName = {
           $regex: new RegExp(search.trim(), "i"),
         };
       }
-
+  
+      if (productCode) {
+        query.productCode = {
+          $regex: new RegExp(productCode.trim(), "i"),
+        };
+      }
+  
       const products = await Product.find(query)
         .limit(parseInt(limit))
         .skip((parseInt(page) - 1) * parseInt(limit))
+        .sort({ totalStock: sortStock === 'desc' ? -1 : 1 })
         .exec();
-
+  
       const count = await Product.countDocuments(query);
-
+  
       res.json({
         success: true,
         data: products,
@@ -104,7 +104,6 @@ class ProductController {
 
   static async create(req, res) {
     try {
-      // Sử dụng middleware để xử lý upload ảnh
       upload.array("images", 10)(req, res, async function (err) {
         if (err) {
           return res.status(400).json({
@@ -114,127 +113,83 @@ class ProductController {
         }
   
         try {
-          // Parse dữ liệu sản phẩm từ body
           const productData = JSON.parse(req.body.productData);
   
-          // Kiểm tra và đảm bảo attributes là mảng
+          // Xử lý attributes với stock mặc định là 0
           if (!Array.isArray(productData.attributes)) {
             const attributesMap = new Map();
-            const { stock, price, ...attrs } = productData.attributes; // lấy giá từ attributes
+            const { price, ...attrs } = productData.attributes;
             Object.entries(attrs).forEach(([key, value]) => {
               attributesMap.set(key, value);
             });
   
-            // Lưu giá và các thuộc tính vào mảng attributes
             productData.attributes = [
               {
                 attributes: attributesMap,
-                stock: stock,
-                price: price, // Lưu giá vào biến thể
+                stock: 0, // Stock mặc định là 0
+                price: price,
               },
             ];
           } else {
-            // Nếu attributes là mảng, duyệt qua từng biến thể để đảm bảo giá được lưu đúng
             productData.attributes = productData.attributes.map((attr) => {
               const attributesMap = new Map();
-              const { stock, price, ...attrs } = attr;
+              const { price, ...attrs } = attr;
               Object.entries(attrs).forEach(([key, value]) => {
                 attributesMap.set(key, value);
               });
   
               return {
                 attributes: attributesMap,
-                stock,
-                price, // Đảm bảo giá được lưu cho từng biến thể
+                stock: 0, // Stock mặc định là 0
+                price: price,
               };
             });
           }
   
-          // Kiểm tra xem sản phẩm đã tồn tại chưa
           const existingProduct = await Product.findOne({
             productCode: productData.productCode,
             isActive: true,
           });
   
           if (existingProduct) {
-            // Sản phẩm đã tồn tại, xử lý thêm biến thể mới
+            // Thêm biến thể mới với stock = 0
             productData.attributes.forEach((newAttr) => {
-              if (!(newAttr.attributes instanceof Map)) {
-                const { stock, price, ...attrs } = newAttr;
-                const attributesMap = new Map(Object.entries(attrs));
-                newAttr = {
-                  attributes: attributesMap,
-                  stock: stock,
-                  price: price, // Đảm bảo lưu giá vào biến thể
-                };
-              }
-  
               const variantIndex = existingProduct.attributes.findIndex(
                 (attr) => {
                   const existingAttrs = Object.fromEntries(attr.attributes);
                   const newAttrs = Object.fromEntries(newAttr.attributes);
-                  return (
-                    JSON.stringify(existingAttrs) === JSON.stringify(newAttrs)
-                  );
+                  return JSON.stringify(existingAttrs) === JSON.stringify(newAttrs);
                 }
               );
   
               if (variantIndex === -1) {
-                // Nếu chưa có biến thể này, thêm vào
                 existingProduct.attributes.push({
                   attributes: newAttr.attributes,
-                  stock: newAttr.stock,
-                  price: newAttr.price, // Lưu giá cho biến thể mới
+                  stock: 0,
+                  price: newAttr.price,
                 });
-                existingProduct.totalStock += newAttr.stock;
-              } else {
-                // Nếu biến thể đã tồn tại, chỉ cập nhật số lượng và giá
-                existingProduct.attributes[variantIndex].stock += newAttr.stock;
-                existingProduct.attributes[variantIndex].price = newAttr.price;
-                existingProduct.totalStock += newAttr.stock;
               }
             });
   
-            // Xử lý thêm ảnh mới vào mảng images hiện có
+            // Xử lý hình ảnh mới
             const newImageUrls = req.files
-              ? req.files.map((file, index) => {
-                  const attribute = productData.attributes[index];
-                  let color = null;
-  
-                  if (attribute && attribute.attributes) {
-                    if (attribute.attributes instanceof Map) {
-                      color = attribute.attributes.get("Color");
-                    } else {
-                      color = attribute.attributes["Color"];
-                    }
-                  }
-  
-                  return {
-                    url: `/uploads/products/${file.filename}`,
-                    alt: color || "Default", // Sử dụng màu làm alt hoặc "Default"
-                    isMain: false,
-                  };
-                })
+              ? req.files.map((file, index) => ({
+                  url: `/uploads/products/${file.filename}`,
+                  alt: productData.attributes[index]?.attributes?.Color || "Default",
+                  isMain: false,
+                }))
               : [];
   
-            existingProduct.images = [
-              ...existingProduct.images,
-              ...newImageUrls,
-            ];
-  
-            // Cập nhật phần mô tả nếu có
-            if (productData.description) {
-              existingProduct.description = productData.description;
-            }
+            existingProduct.images = [...existingProduct.images, ...newImageUrls];
   
             const updatedProduct = await Product.findByIdAndUpdate(
               existingProduct._id,
               {
                 $set: {
                   attributes: existingProduct.attributes,
-                  totalStock: existingProduct.totalStock,
-                  description: existingProduct.description,
+                  description: productData.description || existingProduct.description,
                   images: existingProduct.images,
+                  totalStock: 0, // Đảm bảo totalStock là 0
                 },
               },
               { new: true }
@@ -243,68 +198,45 @@ class ProductController {
             return res.json({
               success: true,
               data: updatedProduct,
-              message: "Đã cập nhật biến thể, số lượng và hình ảnh sản phẩm",
-            });
-          } else {
-            // Sản phẩm chưa tồn tại, tạo mới sản phẩm
-            const slug =
-              productData.productName
-                .toLowerCase()
-                .trim()
-                .replace(/[^\w\s-]/g, "")
-                .replace(/\s+/g, "-") +
-              "-" +
-              Date.now();
-  
-            // Xử lý ảnh cho sản phẩm mới
-            const imageUrls = req.files
-              ? req.files.map((file, index) => {
-                  const attribute = productData.attributes[index];
-                  let color = null;
-  
-                  if (attribute && attribute.attributes) {
-                    if (attribute.attributes instanceof Map) {
-                      color = attribute.attributes.get("Color");
-                    } else {
-                      color = attribute.attributes["Color"];
-                    }
-                  }
-  
-                  return {
-                    url: `/uploads/products/${file.filename}`,
-                    alt: color || "Default", // Sử dụng màu làm alt hoặc "Default"
-                    isMain: index === 0,
-                  };
-                })
-              : [];
-  
-            const totalStock = productData.attributes.reduce(
-              (sum, attr) => sum + (attr.stock || 0),
-              0
-            );
-  
-            // Tạo sản phẩm mới
-            const product = new Product({
-              productName: productData.productName,
-              productCode: productData.productCode,
-              categoryId: productData.categoryId,
-              price: productData.price, // Lưu giá chung cho sản phẩm (nếu có)
-              description: productData.description,
-              totalStock,
-              attributes: productData.attributes,
-              slug,
-              images: imageUrls,
-              isActive: true,
-            });
-  
-            await product.save();
-  
-            res.status(201).json({
-              success: true,
-              data: product,
-              message: "Tạo sản phẩm mới thành công",
+              message: "Đã cập nhật sản phẩm",
             });
           }
+  
+          // Tạo sản phẩm mới
+          const slug = productData.productName
+            .toLowerCase()
+            .trim()
+            .replace(/[^\w\s-]/g, "")
+            .replace(/\s+/g, "-") +
+            "-" +
+            Date.now();
+  
+          // Xử lý hình ảnh cho sản phẩm mới
+          const imageUrls = req.files
+            ? req.files.map((file, index) => ({
+                url: `/uploads/products/${file.filename}`,
+                alt: productData.attributes[index]?.attributes?.Color || "Default",
+                isMain: index === 0,
+              }))
+            : [];
+  
+          // Tạo sản phẩm với totalStock = 0
+          const product = new Product({
+            ...productData,
+            totalStock: 0,
+            attributes: productData.attributes,
+            slug,
+            images: imageUrls,
+            isActive: true,
+          });
+  
+          await product.save();
+  
+          res.status(201).json({
+            success: true,
+            data: product,
+            message: "Tạo sản phẩm mới thành công",
+          });
         } catch (error) {
           res.status(400).json({
             success: false,

@@ -15,8 +15,7 @@ const categoryRoutes = require("./routes/category.routes");
 const productRoutes = require("./routes/product.routes");
 const supplierRoutes = require("./routes/supplier.routes");
 const warehouseRoutes = require("./routes/warehouse.routes");
-const productOffersRoutes = require("./routes/productOffers.routes");
-const warehouseFlowRoutes = require("./routes/warehouseFlow.routes");
+const warehouseExportRoutes = require("./routes/warehouseExport.routes");
 
 const app = express();
 
@@ -52,9 +51,8 @@ if (process.env.NODE_ENV === "production") {
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/suppliers", supplierRoutes);
-app.use("/api/offers", productOffersRoutes);
 app.use("/api/warehouse", warehouseRoutes);
-app.use("/api/exports", warehouseFlowRoutes);
+app.use("/api/exports", warehouseExportRoutes);
 
 app.use(errorHandler);
 
