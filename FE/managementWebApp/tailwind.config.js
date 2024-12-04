@@ -11,6 +11,9 @@ export default {
         secondGray: "#F5F5F5",
         theirdGray: "#E0E0E0",
       },
+      fontFamily: {
+        serif: ["Times New Roman", "serif"],
+      },
     },
   },
   plugins: [],

@@ -20,13 +20,14 @@ export const ImportProvider = ({ children }) => {
   const [receiptsDetail, setReceiptsDetail] = useState({});
   const [checkStock, setCheckStock] = useState([]);
   const [queryParam, setQueryParam] = useState({
-    status: 1,
+    status: null,
     supplierId: null,
     code: null,
     createdBy: null,
     page: 1,
     limit: 10,
   });
+  const [productPayload, setProductPayload] = useState({});
 
   useEffect(() => {
     const queryString = buildQueryString(queryParam);
@@ -46,6 +47,7 @@ export const ImportProvider = ({ children }) => {
     try {
       const response = await getReceiptById(id);
       setReceiptsDetail(response.data);
+      return true;
     } catch (error) {
       console.error("Đã có lỗi xảy ra ở fetchReceipt: ", error.message);
     }
@@ -55,6 +57,7 @@ export const ImportProvider = ({ children }) => {
     try {
       const response = await addnewReceipt(JSON.stringify(payload));
       setCompleted(response.data);
+      return true;
     } catch (error) {
       console.error("Đã có lỗi xảy ra ở createReceipt: ", error.message);
     }
@@ -89,6 +92,8 @@ export const ImportProvider = ({ children }) => {
         updateStatus,
         checkStock,
         receiptsDetail,
+        setProductPayload,
+        productPayload,
       }}
     >
       {children}

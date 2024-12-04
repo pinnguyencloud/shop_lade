@@ -14,14 +14,14 @@ function NavigationImport() {
     {
       id: "history",
       label: "Lịch sử phiếu nhập",
-      path: "",
+      path: "completed-receipt",
       color: "#E0F2FE",
       textColor: "#2563EB",
     },
     {
       id: "draft",
       label: "Bản nháp",
-      path: "",
+      path: "draft-receipt",
       color: "#FEF3C7",
       textColor: "#92400E",
     },

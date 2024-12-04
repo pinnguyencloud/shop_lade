@@ -44,7 +44,7 @@ const MyInput = ({
             onChange={onChange}
             className={`peer w-full border rounded-md px-3 py-2 focus:outline-none focus:border-primary text-primary bg-white ${className}`}
           >
-            <option value="" disabled>
+            <option value="">
               {inputPlaceholder || `Chọn ${inputLabel?.toLowerCase()}`}
             </option>
             {inputOptions.map((option) => (

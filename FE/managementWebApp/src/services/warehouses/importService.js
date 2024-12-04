@@ -2,7 +2,7 @@ import { apiWarehouse } from "../../api/apiWarehouse";
 
 export const getReceipts = async (query) => {
   try {
-    const response = await apiWarehouse.get(`?${query}`);
+    const response = await apiWarehouse.get(`${query}`);
     return response.data;
   } catch (error) {
     console.error("Đã có lỗi xảy ra ở getReceipts: ", error.message);

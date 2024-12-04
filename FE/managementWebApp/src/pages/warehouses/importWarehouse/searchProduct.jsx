@@ -58,7 +58,7 @@ function SearchProduct() {
 
         {/* Hiển thị các sản phẩm tìm thấy */}
         {foundProducts.length > 0 && (
-          <div className="mt-2 max-h-[450px] overflow-y-auto overflow-x-hidden">
+          <div className="mt-2 max-h-[450px] flex flex-col gap-2 overflow-y-auto overflow-x-hidden">
             {foundProducts.map((product) => (
               <ProductSearchItem key={product.id} obj={product} />
             ))}

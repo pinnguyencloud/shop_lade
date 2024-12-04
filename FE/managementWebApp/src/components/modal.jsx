@@ -44,7 +44,7 @@ const Modal = ({
         } ${className} modal-content`}
         onClick={(e) => {
           e.stopPropagation();
-        }} // ngăn chặn việc click vào phần tử trong Modal mà gọi hàm onClose();
+        }}
       >
         {closeBtn && (
           <button
