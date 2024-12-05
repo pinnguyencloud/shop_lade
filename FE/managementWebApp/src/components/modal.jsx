@@ -31,6 +31,18 @@ const Modal = ({
     };
   }, [isOpen, onClose]);
   // sử dụng useEffect để xử lý sự kiện ấn nút để thoát.
+  useEffect(() => {
+    // Chặn cuộn khi modal mở
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto"; // Khôi phục cuộn khi đóng modal
+    }
+
+    return () => {
+      document.body.style.overflow = "auto"; // Đảm bảo khôi phục khi component unmount
+    };
+  }, [isOpen]);
   return (
     <div
       className={`fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity cursor-default duration-300 z-50 ${
@@ -48,7 +60,8 @@ const Modal = ({
       >
         {closeBtn && (
           <button
-            className="absolute right-10 opacity-50 hover:opacity-100 transition-opacity duration-100 top-6 flex items-center justify-center"
+            className="absolute right-10 opacity-50 hover:opacity-100 transition-opacity
+             duration-100 top-7 flex items-center justify-center"
             onClick={onClose}
           >
             <CloseBtnIcon />

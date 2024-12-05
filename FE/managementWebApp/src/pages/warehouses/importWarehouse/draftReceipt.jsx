@@ -20,8 +20,9 @@ function DraftReceipt() {
   }, [queryParam, setQueryParam]);
 
   return (
-    <div className="w-full h-screen">
-      <table className="w-full bg-white">
+    <div className="w-full min-h-[200px]">
+      <h3 className="text-4xl font-semibold my-5 text-[#92400E]">Bản nháp</h3>
+      <table className="w-full">
         <thead className="shadow border">
           <tr>
             <th className={`${tableTheadCss}`}>Mã phiếu</th>
@@ -34,7 +35,7 @@ function DraftReceipt() {
             <th className={`${tableTheadCss}`}>Action</th>
           </tr>
         </thead>
-        <tbody className="max-h-[350px] bg-white">
+        <tbody className="max-h-[350px]">
           {receipts.length > 0 ? (
             receipts.map((receipt) => (
               <tr key={receipt.id} className="bg-white hover:bg-gray-50">
@@ -60,7 +61,11 @@ function DraftReceipt() {
               </tr>
             ))
           ) : (
-            <div className="w-full flex items-center">Không có dữ liệu</div>
+            <tr>
+              <td className="text-center" colSpan={8}>
+                Không có dữ liệu
+              </td>
+            </tr>
           )}
         </tbody>
       </table>

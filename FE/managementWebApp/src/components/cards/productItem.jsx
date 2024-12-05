@@ -13,16 +13,16 @@ function ProductItem({ product }) {
   const BASE_URL = import.meta.env.VITE_API_URL;
   let img = "";
   if (images && images.length > 0) {
-    images.forEach((imgage) => {
-      if (imgage.isMain) {
-        img = `${BASE_URL}${imgage.url}`;
-      }
-    });
+    // images.forEach((imgage) => {
+    //   if (imgage.isMain) {
+    //     img = `${BASE_URL}${imgage.url}`;
+    //   }
+    // });
+    img = `${BASE_URL}${images[0]?.url}`;
   }
 
   const handleRemoveItem = async (id) => {
     await removeProduct(id);
-
   };
   return (
     <div
@@ -66,9 +66,7 @@ function ProductItem({ product }) {
             Bạn muốn xóa thuộc tính này không ?
           </p>
           <div className="flex w-full justify-end pr-4 mt-3">
-            <button
-              className="text-primary px-2 py-1 rounded-lg hover:bg-primary hover:bg-opacity-20 transition-all duration-150"
-            >
+            <button className="text-primary px-2 py-1 rounded-lg hover:bg-primary hover:bg-opacity-20 transition-all duration-150">
               Xóa
             </button>
           </div>

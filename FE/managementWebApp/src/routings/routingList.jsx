@@ -16,6 +16,7 @@ import ProductForm from "../pages/warehouses/importWarehouse/productForm";
 import CompletedReceipt from "../pages/warehouses/importWarehouse/completedReceipt";
 import DraftReceipt from "../pages/warehouses/importWarehouse/draftReceipt";
 import ReceiptDetail from "../components/receiptDetail";
+import Suppliers from "../pages/suppliers";
 
 const router = createBrowserRouter([
   {
@@ -83,6 +84,10 @@ const router = createBrowserRouter([
             ],
           },
         ],
+      },
+      {
+        path: "/suppliers",
+        element: <Suppliers />,
       },
     ],
   },

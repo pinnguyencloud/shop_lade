@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { toast } from "react-toastify";
 
 function ReceiptDetail() {
   const { id } = useParams();
@@ -24,14 +25,6 @@ function ReceiptDetail() {
     };
     fetchData();
   }, [id]);
-
-  // Chặn scroll trang khi modal mở
-  useEffect(() => {
-    document.body.style.overflow = "hidden"; // Chặn cuộn
-    return () => {
-      document.body.style.overflow = ""; // Khôi phục cuộn khi modal đóng
-    };
-  }, []);
 
   //   Hàm xuất PDF
   const handleExportPDF = async () => {
@@ -70,6 +63,7 @@ function ReceiptDetail() {
 
       // Lưu PDF
       pdf.save(`${receiptsDetail.code}.pdf`);
+      toast.success("Lưu bản PDF thành công!");
     } catch (error) {
       console.error("Đã có lỗi xảy ra khi lưu PDF", error);
     }
@@ -77,14 +71,14 @@ function ReceiptDetail() {
   const handlePrint = useReactToPrint({
     contentRef: componentRef,
     documentTitle: "phieu-nhap-kho",
-    onAfterPrint: () => alert("Đã in phiếu nhập kho xong!"),
+    onAfterPrint: () => toast.success("In phiếu thành công"),
   });
 
   return (
     <Modal
       title="CHI TIẾT PHIẾU NHẬP"
       isOpen={true}
-      className={"w-4/5 h-[700px] overflow-hidden overflow-y-auto py-10"}
+      className={"w-4/5 max-h-screen overflow-hidden overflow-y-auto py-10"}
       onClose={() => navigate(-1)}
       closeBtn={true}
     >
@@ -109,6 +103,7 @@ function ReceiptDetail() {
       <div
         className="flex flex-col pt-5 pb-20 px-20 font-serif gap-3"
         ref={componentRef}
+        style={{ maxHeight: "calc(100% - 80px)" }}
       >
         <div className="flex justify-between">
           <div className="max-w-[380px]">
@@ -253,9 +248,7 @@ function ReceiptDetail() {
                       (Ký, họ tên)
                     </span>
                   </p>
-                  <p className="font-semibold">
-                    {receiptsDetail.delivery_person}
-                  </p>
+                  <p className="font-semibold">{receiptsDetail.created_by}</p>
                 </div>
                 <div className="h-full flex flex-col justify-between items-center">
                   <p className="flex flex-col item-center font-semibold mt-6">
@@ -264,7 +257,10 @@ function ReceiptDetail() {
                       (Ký, họ tên)
                     </span>
                   </p>
-                  <p className="font-semibold">{receiptsDetail.created_by}</p>
+
+                  <p className="font-semibold">
+                    {receiptsDetail.delivery_person}
+                  </p>
                 </div>
                 <p className="flex flex-col item-center font-semibold mt-6">
                   Thủ kho{" "}

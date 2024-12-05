@@ -1,14 +1,17 @@
 import { useState } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import MyInput from "../../../components/form/myInput";
 import { useImport, useSupplier } from "../../../contexts";
 import ResetBtnIcon from "../../../assets/icons/resetBtn";
 import Modal from "../../../components/modal";
 import useResetForm from "../../../hooks/useResetForm"; // Import hook reset form
+import CompeletedIcon from "../../../assets/icons/completedIcon";
+import { toast } from "react-toastify";
 
 function ImportReceipt() {
   const { productPayload, createReceipt } = useImport();
   const [openModal, setOpenModal] = useState(false);
+  const navigate = useNavigate();
 
   // Default form data
   const defaultFormData = {
@@ -22,7 +25,6 @@ function ImportReceipt() {
   const [formData, setFormData] = useState(defaultFormData);
   const { suppliers } = useSupplier();
 
-  // Khởi tạo hàm reset form từ custom hook
   const resetForm = useResetForm(setFormData, defaultFormData);
 
   const handleSubmitCompleted = async (e) => {
@@ -36,7 +38,9 @@ function ImportReceipt() {
     const compeleted = await createReceipt(payload);
     if (compeleted) {
       setOpenModal(true);
+      resetForm();
     }
+    // console.log(payload);
   };
 
   const handleSubmitDraft = async (e) => {
@@ -49,7 +53,20 @@ function ImportReceipt() {
 
     const compeleted = await createReceipt(payload);
     if (compeleted) {
-      setOpenModal(true);
+      resetForm();
+      toast.success(
+        <div className="flex items-center justify-center gap-5">
+          <p>Lưu thành công</p>
+          <a
+            className="cursor-pointer underline text-[#F29F58] font-medium"
+            onClick={() =>
+              navigate("/warehouse/import-warehouse/draft-receipt")
+            }
+          >
+            Xem bản nháp
+          </a>
+        </div>
+      );
     }
   };
 
@@ -159,8 +176,44 @@ function ImportReceipt() {
         isOpen={openModal}
         onClose={() => setOpenModal(false)}
         closeBtn={true}
+        className={"w-2/4 h-3/5"}
       >
-        Ok rồi nè
+        <div className="px-20 py-5 border rounded-xl">
+          <div className="flex flex-col gap-5 items-center justify-center w-full h-[300px]">
+            <CompeletedIcon size="125" />
+            <p className="text-xl font-medium text-[#007e47]">
+              Tạo phiếu thành công!
+            </p>
+          </div>
+          <div className="flex gap-5 justify-evenly">
+            <button
+              onClick={() => {
+                setOpenModal(false);
+                navigate("/warehouse/import-warehouse/draft-receipt");
+              }}
+              className="px-5 py-3 border border-[#FEF3C7] bg-[#FEF3C7] text-[#92400E] font-medium hover:bg-white
+            transition-all duration-300 ease-in-out active:scale-95 hover:border-[#92400E] rounded-xl"
+            >
+              Xem bản nháp
+            </button>
+            <button
+              onClick={() => {
+                setOpenModal(false);
+                navigate("/warehouse/import-warehouse/completed-receipt");
+              }}
+              className="px-5 py-3 border border-[#E0F2FE] bg-[#E0F2FE] text-[#2563EB] font-medium hover:bg-white
+            transition-all duration-300 ease-in-out active:scale-95 hover:border-[#2563EB] hover:text-[#2563EB] rounded-xl"
+            >
+              Lịch sử phiếu nhập
+            </button>
+            <button
+              className="px-5 py-3 border border-[#F29F58] bg-[#F29F58] font-medium text-white hover:bg-white
+            transition-all duration-300 ease-in-out active:scale-95 hover:text-[#F29F58] rounded-xl"
+            >
+              Xem chi tiết và In
+            </button>
+          </div>
+        </div>
       </Modal>
     </>
   );

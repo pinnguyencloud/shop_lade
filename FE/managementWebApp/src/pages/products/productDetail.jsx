@@ -45,7 +45,7 @@ function ProductDetail() {
 
   useEffect(() => {
     if (singleProduct?.images) {
-      const mainImage = singleProduct.images.find((img) => img.isMain)?.url;
+      const mainImage = singleProduct.images[0]?.url;
       setImgMain(mainImage ? `${BASE_URL}${mainImage}` : "");
 
       const imageArr = singleProduct.images.map(
@@ -58,7 +58,7 @@ function ProductDetail() {
       const keys = [
         ...new Set(
           singleProduct.attributes.flatMap((attr) =>
-            Object.keys(attr.attributes || {})
+            Object.keys(attr.attributes?.attributes || {})
           )
         ),
       ];
@@ -117,6 +117,7 @@ function ProductDetail() {
                       </th>
                     ))}
                     <th className="border">Stock</th>
+                    <th className="border">Giá bán</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -125,10 +126,11 @@ function ProductDetail() {
                       {/* Render giá trị của từng thuộc tính theo uniqueKeys */}
                       {uniqueKeys.map((key) => (
                         <td className="border" key={key}>
-                          {attr.attributes[key] || "N/A"}
+                          {attr.attributes?.attributes[key] || "N/A"}
                         </td>
                       ))}
                       <td className="border ">{attr.stock}</td>
+                      <td className="border ">{attr.price}</td>
                     </tr>
                   ))}
                 </tbody>

@@ -45,26 +45,34 @@ function SearchProduct() {
   }, [debouncedSearchCode, setQueryParamsObj, products]);
 
   return (
-    <div className="w-full flex items-center justify-center">
-      <div className="w-2/5">
-        <MyInput
-          type="text"
-          value={searchCode}
-          onChange={handleSearchChange}
-          label={"Nhập mã sản phẩm"}
-        />
-        {/* Thông báo lỗi */}
-        {errorMessage && <p className="text-red-500 mt-2">{errorMessage}</p>}
+    <div className="h-[500px]">
+      <div className="w-full flex items-center justify-center">
+        <div className="w-2/5">
+          <MyInput
+            type="text"
+            value={searchCode}
+            onChange={handleSearchChange}
+            label={"Nhập mã sản phẩm"}
+          />
+          {/* Thông báo lỗi */}
+          {errorMessage && <p className="text-red-500 mt-2">{errorMessage}</p>}
 
-        {/* Hiển thị các sản phẩm tìm thấy */}
-        {foundProducts.length > 0 && (
-          <div className="mt-2 max-h-[450px] flex flex-col gap-2 overflow-y-auto overflow-x-hidden">
-            {foundProducts.map((product) => (
-              <ProductSearchItem key={product.id} obj={product} />
-            ))}
-          </div>
-        )}
+          {/* Hiển thị các sản phẩm tìm thấy */}
+          {foundProducts.length > 0 && (
+            <div className="mt-2 max-h-[450px] flex flex-col gap-2 overflow-y-auto overflow-x-hidden">
+              {foundProducts.map((product) => (
+                <ProductSearchItem key={product.id} obj={product} />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
+      <a
+        className="text-gray-500 text-sm cursor-pointer"
+        onClick={() => navigate(-1)}
+      >
+        Trở lại
+      </a>
     </div>
   );
 }

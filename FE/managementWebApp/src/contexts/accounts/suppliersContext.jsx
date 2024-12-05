@@ -3,6 +3,7 @@ import {
   addNewSuppliers,
   deteleSuppliersID,
   getAllSuppliers,
+  getSuppliersID,
   updateSuppliersID,
 } from "../../services/Accounts/suppliers/suppliersServices";
 
@@ -10,6 +11,7 @@ export const SupplierContext = createContext();
 
 export const SupplierProvider = ({ children }) => {
   const [suppliers, setSuppliers] = useState([]);
+  const [supplierDetails, setSupplierDetails] = useState({});
 
   useEffect(() => {
     fetchSuppliers();
@@ -21,6 +23,15 @@ export const SupplierProvider = ({ children }) => {
       setSuppliers(response.data);
     } catch (error) {
       console.error("Lỗi khi lấy danh sách suppliers:", error);
+    }
+  };
+
+  const fetchSupplierById = async (id) => {
+    try {
+      const response = await getSuppliersID(`${id}`);
+      setSupplierDetails(response.data);
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách supplier by id:", error);
     }
   };
 
@@ -53,7 +64,13 @@ export const SupplierProvider = ({ children }) => {
 
   return (
     <SupplierContext.Provider
-      value={{ suppliers, createSuppliers, upSuppliersId, delSuppliersId }}
+      value={{
+        suppliers,
+        createSuppliers,
+        upSuppliersId,
+        delSuppliersId,
+        fetchSupplierById,
+      }}
     >
       {children}
     </SupplierContext.Provider>

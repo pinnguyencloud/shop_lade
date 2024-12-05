@@ -15,6 +15,7 @@ function Navbar() {
     { id: "customers", label: "QL Khách hàng", path: "/customers" },
     { id: "product", label: "QL Sản phẩm", path: "/products" },
     { id: "warehouse", label: "QL Kho hàng", path: "/warehouse" },
+    { id: "suppliers", label: "QL Nhà cung cấp", path: "/suppliers" },
     { id: "setting", label: "Cài đặt", path: "/setting" },
   ];
   return (

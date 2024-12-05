@@ -39,7 +39,9 @@ function Navigation() {
           }}
           onMouseEnter={() => handleMouseEnter(moduleItem.id)}
           onMouseLeave={handleMouseLeave}
-          onClick={() => navigate(moduleItem.path)}
+          onClick={() => {
+            navigate(moduleItem.path);
+          }}
         >
           {moduleItem.label}
         </button>
