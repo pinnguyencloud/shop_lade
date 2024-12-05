@@ -13,6 +13,7 @@ const { cacheMiddleware } = require("./middlewares/cache.middleware");
 // Routes
 const categoryRoutes = require("./routes/category.routes");
 const productRoutes = require("./routes/product.routes");
+const customerRoutes = require("./routes/customer.routes");
 const supplierRoutes = require("./routes/supplier.routes");
 const warehouseRoutes = require("./routes/warehouse.routes");
 const warehouseExportRoutes = require("./routes/warehouseExport.routes");
@@ -49,6 +50,7 @@ if (process.env.NODE_ENV === "production") {
 
 // Routes
 app.use("/api/categories", categoryRoutes);
+app.use("/api/customers", customerRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/suppliers", supplierRoutes);
 app.use("/api/warehouse", warehouseRoutes);
@@ -58,6 +60,7 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
 const host = "0.0.0.0";
+
 app.listen(PORT, host, () => {
   console.log(`Server is running on http://${host}:${PORT}`);
 });

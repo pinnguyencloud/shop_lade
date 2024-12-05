@@ -98,14 +98,13 @@ class WarehouseController {
   
         for (const attribute of attributes) {
           const { _id: attributeId, stock: quantity, price } = attribute;
-          const total_price = quantity * price;
   
-          // Insert chi tiết phiếu nhập
+          // Insert chi tiết phiếu nhập - bỏ total_price vì nó là generated column
           await connection.query(
             `INSERT INTO warehouse_import_details 
-            (warehouse_import_id, product_id, attribute_id, quantity, price, total_price)
-            VALUES (?, ?, ?, ?, ?, ?)`,
-            [importId, productId, attributeId, quantity, price, total_price]
+            (warehouse_import_id, product_id, attribute_id, quantity, price)
+            VALUES (?, ?, ?, ?, ?)`,
+            [importId, productId, attributeId, quantity, price]
           );
   
           // Cập nhật tồn kho nếu trạng thái là completed
@@ -114,7 +113,7 @@ class WarehouseController {
           }
   
           totalQuantity += quantity;
-          totalPrice += total_price;
+          totalPrice += quantity * price;
         }
       }
   

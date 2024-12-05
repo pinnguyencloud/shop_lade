@@ -4,9 +4,31 @@ class SupplierController {
   // Lấy tất cả nhà cung cấp
   static async getAll(req, res) {
     try {
-      const [suppliers] = await db.query(
-        'SELECT * FROM suppliers ORDER BY created_at DESC'
-      );
+      const { search, sort } = req.query;
+      let query = 'SELECT * FROM suppliers';
+      const params = [];
+
+      if (search) {
+        // Tách từ khóa tìm kiếm thành các từ riêng lẻ
+        const keywords = search.toLowerCase().split(' ');
+        const conditions = keywords.map(() => 'LOWER(supplier_name) LIKE ?');
+        query += ' WHERE ' + conditions.join(' AND ');
+        
+        // Thêm % cho mỗi từ khóa để tìm kiếm linh hoạt
+        params.push(...keywords.map(keyword => `%${keyword}%`));
+      }
+
+      query += ` ORDER BY created_at ${sort === 'asc' ? 'ASC' : 'DESC'}`;
+
+      const [suppliers] = await db.query(query, params);
+
+      if (suppliers.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Không tìm thấy nhà cung cấp nào"
+        });
+      }
+
       res.json({
         success: true,
         data: suppliers
@@ -18,6 +40,7 @@ class SupplierController {
       });
     }
   }
+
 
   // Lấy nhà cung cấp theo id
   static async getById(req, res) {
