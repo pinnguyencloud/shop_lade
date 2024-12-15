@@ -8,31 +8,40 @@ class WarehouseExportController {
       await connection.beginTransaction();
 
       const {
+        customerId, // Thêm customerId
         receiverName,
         phoneNumber,
         createdBy,
         products,
         status,
         notes,
-        address,
-        ward,
-        district,
-        province,
         deliveryUnit,
         expectedDeliveryDate,
         deliveryNotes,
       } = req.body;
 
+      // Lấy thông tin địa chỉ từ customer
+      const [customer] = await connection.query(
+        "SELECT address, ward, district, province FROM customers WHERE id = ?",
+        [customerId]
+      );
+
+      if (!customer.length) {
+        throw new Error("Không tìm thấy thông tin khách hàng");
+      }
+
+      const { address, ward, district, province } = customer[0];
       const code = `EX${Date.now()}`;
 
       const [exportResult] = await connection.query(
         `INSERT INTO warehouse_exports 
-        (code, receiver_name, phone_number, created_by, status, notes, 
+        (code, customer_id, receiver_name, phone_number, created_by, status, notes, 
          address, ward, district, province, delivery_unit, 
          expected_delivery_date, delivery_notes)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           code,
+          customerId,
           receiverName,
           phoneNumber,
           createdBy,
@@ -354,13 +363,16 @@ class WarehouseExportController {
     }
   }
 
-  static async getById(req, res) {
+   static async getById(req, res) {
     try {
       const { id } = req.params;
 
+      // Lấy thông tin cơ bản của phiếu xuất và thông tin khách hàng
       const [export_] = await db.query(
-        `SELECT e.*, h.old_status, h.new_status, h.reason, h.created_at as history_date 
+        `SELECT e.*, c.name as customer_name, c.phone as customer_phone, c.email as customer_email,
+         h.old_status, h.new_status, h.reason, h.created_at as history_date 
          FROM warehouse_exports e
+         LEFT JOIN customers c ON e.customer_id = c.id
          LEFT JOIN warehouse_export_history h ON e.id = h.warehouse_export_id
          WHERE e.id = ?`,
         [id]
@@ -373,16 +385,52 @@ class WarehouseExportController {
         });
       }
 
+      // Lấy chi tiết xuất kho
       const [details] = await db.query(
         `SELECT * FROM warehouse_export_details WHERE warehouse_export_id = ?`,
         [id]
+      );
+
+      // Lấy thông tin chi tiết sản phẩm từ MongoDB cho mỗi dòng chi tiết
+      const detailsWithProducts = await Promise.all(
+        details.map(async (detail) => {
+          const product = await Product.findOne(
+            {
+              _id: detail.product_id,
+              "attributes._id": detail.attribute_id,
+            },
+            {
+              productName: 1,
+              productCode: 1,
+              "attributes.$": 1,
+            }
+          ).lean();
+
+          if (!product) {
+            return {
+              ...detail,
+              productName: "Sản phẩm không tồn tại",
+              productCode: "N/A",
+              attribute: null,
+            };
+          }
+
+          return {
+            quantity: detail.quantity,
+            price: detail.price,
+            productName: product.productName,
+            productCode: product.productCode,
+            attribute: product.attributes[0],
+            totalAmount: detail.quantity * detail.price,
+          };
+        })
       );
 
       res.json({
         success: true,
         data: {
           ...export_[0],
-          details,
+          details: detailsWithProducts,
         },
       });
     } catch (error) {
