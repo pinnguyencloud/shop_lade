@@ -17,6 +17,7 @@ const customerRoutes = require("./routes/customer.routes");
 const supplierRoutes = require("./routes/supplier.routes");
 const warehouseRoutes = require("./routes/warehouse.routes");
 const warehouseExportRoutes = require("./routes/warehouseExport.routes");
+const dashboardRoutes = require("./routes/dashboard.routes");
 
 const app = express();
 
@@ -55,6 +56,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/suppliers", supplierRoutes);
 app.use("/api/warehouse", warehouseRoutes);
 app.use("/api/exports", warehouseExportRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 app.use(errorHandler);
 

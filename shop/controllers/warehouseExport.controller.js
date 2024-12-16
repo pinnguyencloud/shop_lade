@@ -5,13 +5,13 @@ class WarehouseExportController {
   static async createExport(req, res) {
     const connection = await db.getConnection();
     try {
-      await connection.beginTransaction();
-
       const {
-        customerId, // Thêm customerId
+        customerId,
         receiverName,
         phoneNumber,
         createdBy,
+        address,
+        exportReason,
         products,
         status,
         notes,
@@ -20,37 +20,21 @@ class WarehouseExportController {
         deliveryNotes,
       } = req.body;
 
-      // Lấy thông tin địa chỉ từ customer
-      const [customer] = await connection.query(
-        "SELECT address, ward, district, province FROM customers WHERE id = ?",
-        [customerId]
-      );
-
-      if (!customer.length) {
-        throw new Error("Không tìm thấy thông tin khách hàng");
-      }
-
-      const { address, ward, district, province } = customer[0];
-      const code = `EX${Date.now()}`;
-
       const [exportResult] = await connection.query(
         `INSERT INTO warehouse_exports 
-        (code, customer_id, receiver_name, phone_number, created_by, status, notes, 
-         address, ward, district, province, delivery_unit, 
-         expected_delivery_date, delivery_notes)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        (customer_id, receiver_name, phone_number, created_by, 
+         address, export_reason, status, notes,
+         delivery_unit, expected_delivery_date, delivery_notes)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
-          code,
           customerId,
           receiverName,
           phoneNumber,
           createdBy,
+          address,
+          exportReason,
           status === 0 ? "draft" : "completed",
           notes,
-          address,
-          ward,
-          district,
-          province,
           deliveryUnit,
           expectedDeliveryDate,
           deliveryNotes,
@@ -93,10 +77,7 @@ class WarehouseExportController {
 
           if (status === 1) {
             await Product.findOneAndUpdate(
-              {
-                _id: productId,
-                "attributes._id": attributeId,
-              },
+              { _id: productId, "attributes._id": attributeId },
               {
                 $inc: {
                   "attributes.$.stock": -quantity,
@@ -113,8 +94,7 @@ class WarehouseExportController {
 
       await connection.query(
         `UPDATE warehouse_exports 
-         SET total_quantity = ?, 
-             total_price = ?
+         SET total_quantity = ?, total_price = ?
          WHERE id = ?`,
         [totalQuantity, totalPrice, exportId]
       );
@@ -125,17 +105,9 @@ class WarehouseExportController {
         success: true,
         data: {
           exportId,
-          code,
           totalQuantity,
           totalPrice,
           status: status === 0 ? "draft" : "completed",
-          address,
-          ward,
-          district,
-          province,
-          deliveryUnit,
-          expectedDeliveryDate,
-          deliveryNotes,
         },
       });
     } catch (error) {
@@ -363,7 +335,7 @@ class WarehouseExportController {
     }
   }
 
-   static async getById(req, res) {
+  static async getById(req, res) {
     try {
       const { id } = req.params;
 
