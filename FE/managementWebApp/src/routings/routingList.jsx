@@ -17,6 +17,9 @@ import CompletedReceipt from "../pages/warehouses/importWarehouse/completedRecei
 import DraftReceipt from "../pages/warehouses/importWarehouse/draftReceipt";
 import ReceiptDetail from "../components/receiptDetail";
 import Suppliers from "../pages/suppliers";
+import ExportWarehouse from "../pages/warehouses/exportWarehouse";
+import NavigationExport from "../pages/warehouses/exportWarehouse/navigation";
+import CreateExportReceipt from "../pages/warehouses/exportWarehouse/createExportReceipt";
 
 const router = createBrowserRouter([
   {
@@ -81,6 +84,15 @@ const router = createBrowserRouter([
                 element: <DraftReceipt />,
                 children: [{ path: ":id", element: <ReceiptDetail /> }],
               },
+            ],
+          },
+          {
+            path: "export-warehouse",
+            element: <ExportWarehouse />,
+            children: [
+              { path: "", element: <NavigationExport /> },
+              { path: "create-receipt", element: <CreateExportReceipt /> },
+              // { path: "export-receipt", element: <CompletedReceiptExport /> },
             ],
           },
         ],

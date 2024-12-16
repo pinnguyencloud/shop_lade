@@ -2,11 +2,11 @@ import axios from "axios";
 
 const defaultApi = import.meta.env.VITE_API_URL;
 
-const apiExports = axios.create({
-  baseURL: `${defaultApi}/api/exports/`,
+const apiCustomer = axios.create({
+  baseURL: `${defaultApi}/api/customers/`,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-export { apiExports };
+export { apiCustomer };

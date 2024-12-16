@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { useGobal, useImport, useSupplier } from "../../../contexts";
 import { Outlet, useNavigate } from "react-router-dom";
 import useDebounce from "../../../hooks/useDebounce";
-import Modal from "../../../components/modal";
+// import Modal from "../../../components/modal";
 
 function CompletedReceipt() {
   const { receipts, setQueryParam, queryParam } = useImport();
   const { convertToDateTime, formatCurrency } = useGobal();
-  const [modal, setModal] = useState(false);
+  // const [modal, setModal] = useState(false);
   const { suppliers } = useSupplier();
 
   const [searchCompletedReceipt, setSearchCompletedReceipt] = useState({

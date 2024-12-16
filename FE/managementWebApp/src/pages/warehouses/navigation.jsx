@@ -10,7 +10,7 @@ function Navigation() {
       path: "import-warehouse",
       color: "#3B82F6",
     },
-    { id: "exportWarehouse", label: "Xuất kho", path: "", color: "#EF4444" },
+    { id: "exportWarehouse", label: "Xuất kho", path: "export-warehouse", color: "#EF4444" },
     { id: "inventory", label: "QL Tồn kho", path: "", color: "#10B981" },
   ];
 
