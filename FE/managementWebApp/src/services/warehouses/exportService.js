@@ -7,7 +7,9 @@ export const postCreateReceipt = async (payload) => {
     toast.success("Tạo phiếu nhập kho thành công");
     return res.data;
   } catch (error) {
-    toast.error(error.data.message);
+    console.error("error", error);
+    
+    toast.error(error.response.data.message);
   }
 };
 

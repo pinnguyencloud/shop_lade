@@ -3,7 +3,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 function Warehouses() {
   const navigate = useNavigate();
   return (
-    <div className="py-10 h-[650px]">
+    <div className="py-10">
       <div className="mb-5">
         <div
           className="max-w-[150px] cursor-pointer"

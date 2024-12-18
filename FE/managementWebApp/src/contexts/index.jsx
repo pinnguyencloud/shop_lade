@@ -3,6 +3,8 @@ import { ProductContext, ProductProvider } from "./products/productContext";
 import { CategoriesContext, CategoriesProvider } from "./categoriesContext";
 import { ImportContext, ImportProvider } from "./warehouse/importContext";
 import { SupplierContext, SupplierProvider } from "./accounts/suppliersContext";
+import { CustomerContext, CustomerProvider } from "./accounts/customerContext";
+import { ExportContext, ExportProvider } from "./warehouse/exportContext";
 
 const GobalContext = createContext();
 
@@ -156,7 +158,11 @@ export const GobalProvider = ({ children }) => {
       <CategoriesProvider>
         <ProductProvider>
           <ImportProvider>
-            <SupplierProvider>{children}</SupplierProvider>
+            <CustomerProvider>
+              <ExportProvider>
+                <SupplierProvider>{children}</SupplierProvider>
+              </ExportProvider>
+            </CustomerProvider>
           </ImportProvider>
         </ProductProvider>
       </CategoriesProvider>
@@ -169,3 +175,5 @@ export const useCategories = () => useContext(CategoriesContext);
 export const useGobal = () => useContext(GobalContext);
 export const useImport = () => useContext(ImportContext);
 export const useSupplier = () => useContext(SupplierContext);
+export const useCustomer = () => useContext(CustomerContext);
+export const useExport = () => useContext(ExportContext);

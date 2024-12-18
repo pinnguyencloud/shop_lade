@@ -14,17 +14,17 @@ function NavigationExport() {
     {
       id: "history",
       label: "Lịch sử phiếu xuất",
-      path: "completed-receipt",
+      path: "export-receipt",
       color: "#E0F2FE",
       textColor: "#2563EB",
     },
-    {
-      id: "draft",
-      label: "Bản nháp",
-      path: "draft-receipt",
-      color: "#FEF3C7",
-      textColor: "#92400E",
-    },
+    // {
+    //   id: "draft",
+    //   label: "Bản nháp",
+    //   path: "draft-receipt",
+    //   color: "#FEF3C7",
+    //   textColor: "#92400E",
+    // },
   ];
 
   const [hoveredItem, setHoveredItem] = useState(null);

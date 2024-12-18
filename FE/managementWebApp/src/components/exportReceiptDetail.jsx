@@ -1,16 +1,17 @@
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Modal from "./modal";
 import { useGobal, useImport } from "../contexts";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { toast } from "react-toastify";
+import { getExportDetail } from "../services/warehouses/exportService";
 
-function ReceiptDetail() {
+function ExportReceiptDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { receiptsDetail, fetchReceiptById } = useImport();
+  const [receiptDetail, setReceiptDetail] = useState({});
   const { convertToDateTime, numberToWords, formatCurrency, convertToDate } =
     useGobal();
   const tableTheadCss = "px-4 py-2 border border-black font-semibold";
@@ -18,6 +19,13 @@ function ReceiptDetail() {
   const toDay = Date.now();
 
   const componentRef = useRef();
+
+  const fetchReceiptById = async (id) => {
+    try {
+      const res = await getExportDetail(id);
+      setReceiptDetail(res.data);
+    } catch (error) {}
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -62,7 +70,7 @@ function ReceiptDetail() {
       pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
 
       // Lưu PDF
-      pdf.save(`${receiptsDetail.code}.pdf`);
+      pdf.save(`${receiptDetail.code}.pdf`);
       toast.success("Lưu bản PDF thành công!");
     } catch (error) {
       console.error("Đã có lỗi xảy ra khi lưu PDF", error);
@@ -122,58 +130,65 @@ function ReceiptDetail() {
             </p>
           </div>
         </div>
-        {receiptsDetail && (
+        {receiptDetail && (
           <div className="w-full flex flex-col gap-5">
             {/* Title */}
             <div className="flex flex-col items-center mb-5 gap-2">
               <h3 className="uppercase text-4xl font-semibold">
-                phiếu nhập kho
+                phiếu xuất kho
               </h3>
               <div className="flex flex-col items-center">
                 <span className="italic font-semibold">
                   {convertToDate(toDay)}
                 </span>
-                <span>Số: {receiptsDetail.code}</span>
+                <span>Số: {receiptDetail.code}</span>
               </div>
             </div>
             {/* Infomation */}
             <div className="flex justify-between">
               <div className="flex gap-10">
                 <div className="w-[150px]">
-                  <p>Nhà cung cấp:</p>
-                  <p>Trạng thái:</p>
+                  <p>Họ và tên người nhận:</p>
+                  <p>Địa chỉ:</p>
                   <p>Ghi chú:</p>
                 </div>
                 <div className="max-w-[400px]">
-                  <p className=" ">{receiptsDetail.supplier_name}</p>
-                  <p className=" ">
-                    {receiptsDetail.status === "completed"
-                      ? "Hoàn tất"
-                      : "Bản nháp"}
-                  </p>
-                  <p className=" ">{receiptsDetail.notes}</p>
+                  <p className=" ">{receiptDetail.customer_name}</p>
+                  <p className=" ">{receiptDetail.address}</p>
+                  <p className=" ">{receiptDetail.notes}</p>
                 </div>
               </div>
               <div className="flex">
                 <div className="w-[150px]">
                   <p>Người tạo phiếu:</p>
-                  <p>Ngày nhập hàng:</p>
-                  <p>Người giao hàng:</p>
+                  <p>Ngày xuất kho:</p>
+                  <p>Đơn vị giao hàng:</p>
                 </div>
                 <div className="">
-                  <p className=" ">{receiptsDetail.created_by}</p>
+                  <p className=" ">{receiptDetail.created_by}</p>
                   <p className=" ">
-                    {convertToDateTime(receiptsDetail.created_at)}
+                    {convertToDateTime(receiptDetail.created_at)}
                   </p>
-                  <p className=" ">
-                    {receiptsDetail.delivery_person} |{" "}
-                    {receiptsDetail.phone_number}
-                  </p>
+                  <p className=" ">{receiptDetail.delivery_unit}</p>
                 </div>
               </div>
             </div>
+            <div className="flex">
+              <div className="w-[150px]">
+                <p>Lý do xuất:</p>
+                <p>Ghi chú cho DVGH:</p>
+              </div>
+              <div className="">
+                <p className="">
+                  {receiptDetail.export_reason
+                    ? receiptDetail.export_reason
+                    : "-"}
+                </p>
+                <p className=" ">{receiptDetail.delivery_notes}</p>
+              </div>
+            </div>
             <div>
-              <p>Giao tại: Kho H.A Laden bau</p>
+              <p>Xuất tại: Kho H.A Laden bau</p>
               <p>
                 Địa chỉ: Số 45, đường số 59, phường 14, quận Gò Vấp, Thành phố
                 Hồ Chí Minh, Việt Nam
@@ -193,17 +208,15 @@ function ReceiptDetail() {
                 </tr>
               </thead>
               <tbody>
-                {receiptsDetail?.details &&
-                  receiptsDetail?.details?.map((detail, index) => (
+                {receiptDetail?.details &&
+                  receiptDetail?.details?.map((detail, index) => (
                     <tr key={index}>
                       <td className={tableTbodyCss}>{index + 1}</td>
                       <td className={`${tableTbodyCss} max-w-[250px]`}>
                         {`${detail.productName} :`}
                         <br />
                         {detail.attribute?.attributes
-                          ? Object.entries(
-                              detail.attribute.attributes
-                            )
+                          ? Object.entries(detail.attribute.attributes)
                               .map(([key, value]) => `${key} : ${value}`)
                               .join(" / ")
                           : "Không có thuộc tính"}
@@ -224,11 +237,11 @@ function ReceiptDetail() {
                     Tổng cộng:
                   </th>
                   <th className={tableTheadCss}>
-                    {receiptsDetail.total_quantity}
+                    {receiptDetail.total_quantity}
                   </th>
                   <th className={tableTheadCss}></th>
                   <th className={tableTheadCss}>
-                    {formatCurrency(+receiptsDetail?.total_price)}
+                    {formatCurrency(+receiptDetail?.total_price)}
                   </th>
                 </tr>
               </tbody>
@@ -239,7 +252,7 @@ function ReceiptDetail() {
                 <p>
                   Tổng số tiền ( Viết bằng chữ ):{" "}
                   <span className="italic">
-                    {numberToWords(+receiptsDetail.total_price)}
+                    {numberToWords(+receiptDetail.total_price)}
                   </span>
                 </p>
                 <p>Số chứng từ gốc kèm theo:</p>
@@ -252,18 +265,18 @@ function ReceiptDetail() {
                       (Ký, họ tên)
                     </span>
                   </p>
-                  <p className="font-semibold">{receiptsDetail.created_by}</p>
+                  <p className="font-semibold">{receiptDetail.created_by}</p>
                 </div>
                 <div className="h-full flex flex-col justify-between items-center">
                   <p className="flex flex-col item-center font-semibold mt-6">
-                    Người giao hàng{" "}
+                    Người nhận hàng{" "}
                     <span className="text-center italic text-sm font-normal">
                       (Ký, họ tên)
                     </span>
                   </p>
 
                   <p className="font-semibold">
-                    {receiptsDetail.delivery_person}
+                    {receiptDetail.delivery_person}
                   </p>
                 </div>
                 <p className="flex flex-col item-center font-semibold mt-6">
@@ -291,4 +304,4 @@ function ReceiptDetail() {
   );
 }
 
-export default ReceiptDetail;
+export default ExportReceiptDetail;

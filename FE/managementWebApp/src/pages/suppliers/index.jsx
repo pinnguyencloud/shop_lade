@@ -1,5 +1,5 @@
 function Suppliers() {
-  return <>suppliers</>;
+  return <>Comming soon</>;
 }
 
 export default Suppliers;

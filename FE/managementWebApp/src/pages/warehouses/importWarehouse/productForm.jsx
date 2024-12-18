@@ -86,14 +86,13 @@ function ProductForm() {
               type="select"
               value={attribute.attributeId}
               onChange={(e) => handleAttributeChange(e, index, e.target.value)}
-              options={singleProduct.attributes?.flatMap((attr) => {
-                const attributes = Object.entries(attr.attributes.attributes);
-                const label = attributes
+              options={singleProduct?.attributes?.map((attr) => {
+                const attributes = attr.attributes;
+                const label = Object.entries(attributes)
                   .map(([key, value]) => `${key}: ${value}`)
                   .join(" / ");
-
                 return {
-                  label,
+                  label, 
                   value: attr._id,
                 };
               })}

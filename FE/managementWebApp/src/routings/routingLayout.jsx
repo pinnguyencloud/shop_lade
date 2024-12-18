@@ -7,7 +7,7 @@ function LayoutRouter() {
     <div className="bg-secondGray bg-opacity-80">
       <Navbar />
       <Header />
-      <div className="w-full pl-[290px] pr-10 h-auto">
+      <div className="w-full pl-[290px] min-h-[650px] pr-10 h-auto">
         <Outlet />
       </div>
     </div>

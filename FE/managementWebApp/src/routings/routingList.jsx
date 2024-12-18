@@ -20,6 +20,8 @@ import Suppliers from "../pages/suppliers";
 import ExportWarehouse from "../pages/warehouses/exportWarehouse";
 import NavigationExport from "../pages/warehouses/exportWarehouse/navigation";
 import CreateExportReceipt from "../pages/warehouses/exportWarehouse/createExportReceipt";
+import CompletedExport from "../pages/warehouses/exportWarehouse/completedExport";
+import ExportReceiptDetail from "../components/exportReceiptDetail";
 
 const router = createBrowserRouter([
   {
@@ -92,7 +94,11 @@ const router = createBrowserRouter([
             children: [
               { path: "", element: <NavigationExport /> },
               { path: "create-receipt", element: <CreateExportReceipt /> },
-              // { path: "export-receipt", element: <CompletedReceiptExport /> },
+              {
+                path: "export-receipt",
+                element: <CompletedExport />,
+                children: [{ path: ":id", element: <ExportReceiptDetail /> }],
+              },
             ],
           },
         ],
