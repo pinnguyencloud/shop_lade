@@ -1,50 +1,33 @@
+// customerService.js
 import { apiCustomer } from "../../../api/apiCustomer";
-import { toast } from "react-toastify";
 
 export const getAllCustomers = async () => {
-  try {
-    const res = await apiCustomer.get();
-    return res.data;
-  } catch (error) {
-    console.error("Đã có lỗi xảy ra ở get All: ", error.message);
-  }
-};
-
-export const getCustomerById = async (id) => {
-  try {
-    const res = await apiCustomer.get(id);
-    return res.data;
-  } catch (error) {
-    console.error("Đã có lỗi xảy ra ở getById", error.message);
-  }
+  const response = await apiCustomer.get("");
+  return response.data;
 };
 
 export const postCreateCustomer = async (payload) => {
-  try {
-    const res = await apiCustomer.post("", JSON.stringify(payload));
-    toast.success("Tạo khách hàng mới thành công");
-    return res.data;
-  } catch (error) {
-    toast.error(error.data.message);
-  }
+  const response = await apiCustomer.post("", payload);
+  return response.data;
 };
 
 export const putChangeInfoCustomer = async (id, payload) => {
   try {
-    const res = await apiCustomer.put(`${id}`, JSON.stringify(payload));
-    toast.success("Thay đổi thông tin khách hàng thành công");
-    return res.data;
+    const response = await apiCustomer.put(`${id}`, payload);
+    return response.data;
   } catch (error) {
-    toast.error(error.data.message);
+    console.error("Lỗi cập nhật:", error);
+    throw error;
   }
 };
 
 export const deleteCustomer = async (id) => {
   try {
-    const res = await apiCustomer.delete(id);
-    toast.success("Xóa tài khoản khách hàng thành công");
-    return res.data;
+    const response = await apiCustomer.delete(`${id}`);
+    return response.data;
   } catch (error) {
-    toast.error(error.data.message);
+    console.error("Lỗi xóa:", error);
+    throw error;
   }
 };
+
